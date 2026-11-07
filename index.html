@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เซ็นเอกสาร</title>
+<meta name="theme-color" content="#d6336c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="เซ็นเอกสาร">
+<link rel="stylesheet" href="vendor/sarabun.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>เซ็นเอกสาร</h1>
+  <p class="sub">ทุกอย่างอยู่ในมือถือเครื่องนี้ ไม่ส่งขึ้นเน็ต</p>
+</header>
+
+<main>
+  <!-- แนะนำติดตั้งเป็นไอคอน แสดงเฉพาะ iPhone ที่ยังเปิดใน Safari -->
+  <section class="card install" id="installTip" hidden>
+    <h2>ติดตั้งเป็นไอคอนบนหน้าจอ</h2>
+    <ol>
+      <li>แตะปุ่มแชร์ <b>⬆</b> ด้านล่างของ Safari</li>
+      <li>เลื่อนลงแล้วแตะ <b>เพิ่มไปยังหน้าจอโฮม</b></li>
+      <li>แตะ <b>เพิ่ม</b> แล้วเปิดแอปจากไอคอน "เซ็นเอกสาร"</li>
+    </ol>
+    <p class="hint">เก็บลายเซ็นในแอปที่เปิดจากไอคอน ลายเซ็นที่เก็บผ่าน Safari จะไม่ตามไป</p>
+    <button type="button" class="btn small ghost" id="installClose">ปิด</button>
+  </section>
+  <!-- ขั้น 1 -->
+  <section class="card" id="step-doc">
+    <h2><span class="num">1</span> เลือกเอกสาร</h2>
+    <label class="btn primary block">
+      เลือกไฟล์ PDF หรือรูป
+      <input type="file" id="docInput" accept="application/pdf,image/*" multiple hidden>
+    </label>
+    <p class="hint" id="docInfo">เลือกได้หลายไฟล์ รวมเป็นเอกสารชุดเดียว</p>
+  </section>
+
+  <!-- ขั้น 2 -->
+  <section class="card" id="step-sig">
+    <h2><span class="num">2</span> เลือกลายเซ็น</h2>
+    <div class="sig-list" id="sigList"></div>
+    <label class="btn ghost block">
+      + เพิ่มลายเซ็น
+      <input type="file" id="sigInput" accept="image/*" hidden>
+    </label>
+    <div class="row ink-row">
+      <span>สีหมึก</span>
+      <div class="seg" id="inkSeg">
+        <button type="button" data-ink="blue" class="on"><i class="dot blue"></i>น้ำเงิน</button>
+        <button type="button" data-ink="black"><i class="dot black"></i>ดำ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ขั้น 3 -->
+  <section class="card" id="step-text">
+    <h2><span class="num">3</span> ข้อความ</h2>
+    <label class="check"><input type="checkbox" id="optCopy" checked> สำเนาถูกต้อง</label>
+    <label class="check"><input type="checkbox" id="optPurpose" checked> ใช้สำหรับ ... เท่านั้น</label>
+    <textarea id="purpose" rows="2" placeholder="เช่น ยื่นเปิดบัญชีเงินฝากออมทรัพย์ ธนาคาร... สาขา..."></textarea>
+    <label class="check"><input type="checkbox" id="optDate" checked> วันที่</label>
+    <input type="text" id="dateText" class="text-in">
+  </section>
+
+  <!-- ขั้น 4 -->
+  <section class="card" id="step-place">
+    <h2><span class="num">4</span> วางแล้วบันทึก</h2>
+    <p class="hint">ลากด้วยนิ้วเพื่อย้าย ถ่างสองนิ้วเพื่อย่อขยาย</p>
+    <div class="stage-wrap">
+      <canvas id="stage"></canvas>
+      <div class="empty" id="stageEmpty">ยังไม่ได้เลือกเอกสาร</div>
+    </div>
+    <div class="row pager" id="pager" hidden>
+      <button type="button" class="btn small" id="prevPage">‹ ก่อนหน้า</button>
+      <span id="pageLabel">หน้า 1/1</span>
+      <button type="button" class="btn small" id="nextPage">ถัดไป ›</button>
+    </div>
+    <div class="row size-row">
+      <span>ขนาด</span>
+      <input type="range" id="sizeRange" min="12" max="90" value="38">
+    </div>
+    <div class="row wrap-btns">
+      <label class="check inline"><input type="checkbox" id="optOnPage" checked> เซ็นหน้านี้</label>
+      <button type="button" class="btn small ghost" id="applyAll">วางตำแหน่งนี้ทุกหน้า</button>
+    </div>
+    <div class="row save-row">
+      <button type="button" class="btn primary" id="savePdf">บันทึก PDF</button>
+      <button type="button" class="btn" id="saveImg">บันทึกรูป</button>
+    </div>
+    <p class="hint" id="saveInfo"></p>
+  </section>
+</main>
+
+<!-- หน้าต่างเพิ่มลายเซ็น -->
+<div class="sheet" id="sigSheet" hidden>
+  <div class="sheet-body">
+    <h2>เพิ่มลายเซ็น</h2>
+    <div class="checker"><canvas id="sigPreview"></canvas></div>
+    <div class="row">
+      <button type="button" class="btn small" id="sigMore">ลบพื้นเพิ่ม</button>
+      <button type="button" class="btn small" id="sigLess">คืนเส้นบาง</button>
+      <button type="button" class="btn small" id="sigRotate">หมุน ↻</button>
+    </div>
+    <label class="check"><input type="checkbox" id="sigKeepColor"> เป็นตราประทับ (คงสีเดิม ไม่เปลี่ยนเป็นน้ำเงิน)</label>
+    <input type="text" id="sigName" class="text-in" placeholder="ตั้งชื่อ เช่น ลายเซ็นหมึกหนา">
+    <div class="row">
+      <button type="button" class="btn ghost" id="sigCancel">ยกเลิก</button>
+      <button type="button" class="btn primary" id="sigSave">เก็บ</button>
+    </div>
+  </div>
+</div>
+
+<div class="busy" id="busy" hidden><div class="spinner"></div><p id="busyText">กำลังทำ...</p></div>
+
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

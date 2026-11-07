@@ -1,0 +1,4 @@
+_testdata/
+icons-draft/_preview.png
+*.backup-*
+.deploy-git/
